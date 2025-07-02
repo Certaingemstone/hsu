@@ -1,12 +1,9 @@
 import React, { useEffect, useState, useRef } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-function Activity(props) {
-  return (
-    <div className="activity-list-item">
-      <p>{props.name} {props.duration}</p>
-    </div>
-  );
+function ActivityViewer(props) {
+
+
 }
 
 function ActivityList(props) {
@@ -16,31 +13,34 @@ function ActivityList(props) {
     console.log("selected:", key);
   }
 
-  if (props.activities.length > 0) {
-    return (
-      <ul>
-        {props.activities.map((activity) => (
-          <li
-            key={activity.id}
-            className={"list-group-item"}
-            onClick={() => handleClick(activity.id)}
-          >
-            {(props.selection === activity.id) 
-              ? <span><b>({activity.name} {activity.duration})</b></span> 
-              : <span>({activity.name} {activity.duration})</span>}
-          </li>
-        ))}
-      </ul>
-    );
-  }
-  console.log("length zero or less")
-  return null;
+  // to use map, activities needs to be an array
+  let activityArray = []
+  Object.keys(props.activities).forEach((key) => (
+    activityArray.push(props.activities[key])
+  ))
+
+  return (
+    <ul>
+      {activityArray.map((activity) => (
+        <li
+          key={activity.id}
+          className={"list-group-item"}
+          onClick={() => handleClick(activity.id)}
+        >
+          {(props.selection === activity.id) 
+            ? <span><b>{activity.name} {activity.duration}</b></span> 
+            : <span>{activity.name} {activity.duration}</span>
+          }
+        </li>
+      ))}
+    </ul>
+  );
 }
 
 function ActivityManager() {
   const [inputName, setInputName] = useState("");
   const [inputDuration, setInputDuration] = useState("")
-  const [activities, setActivities] = useState(new Array());
+  const [activities, setActivities] = useState({});
   const [highestId, setHighestId] = useState(0);
   const [selection, setSelection] = useState(0);
   const inputRef = useRef()
@@ -61,7 +61,7 @@ function ActivityManager() {
       duration: inputDuration
     };
     setHighestId(highestId + 1);
-    setActivities([...activities, newAct]);
+    setActivities(activities => ({...activities, [highestId]: newAct})); 
     setInputName("");
     setInputDuration("");
   } 
