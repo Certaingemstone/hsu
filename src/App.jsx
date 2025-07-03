@@ -1,13 +1,27 @@
 import React, { useEffect, useState, useRef } from 'react';
+import "./App.css";
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 function ActivityViewer(props) {
+  // Renders an activity
+  const act = props.activity;
+  const canvasRef = useRef();
 
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    const context = canvas.getContext("2d");
 
+    context.fillStyle = 'red';
+    context.fillRect(0, 0, props.width, props.height);
+  }, []);
+
+  return <div className="activity-viewer">
+    <canvas ref={canvasRef} width={props.width} height={props.height} />
+  </div>;
 }
 
 function ActivityList(props) {
-
+  // Renders the list of activities
   function handleClick(key) {
     props.setSelection(key);
     console.log("selected:", key);
@@ -38,12 +52,13 @@ function ActivityList(props) {
 }
 
 function ActivityManager() {
+  // Input and define new activities
   const [inputName, setInputName] = useState("");
   const [inputDuration, setInputDuration] = useState("")
   const [activities, setActivities] = useState({});
   const [highestId, setHighestId] = useState(0);
   const [selection, setSelection] = useState(0);
-  const inputRef = useRef()
+  const inputRef = useRef();
 
   function handleChangeName(event) {
     setInputName(event.target.value);
@@ -65,6 +80,16 @@ function ActivityManager() {
     setInputName("");
     setInputDuration("");
   } 
+
+  function handleDeleteActivity() {
+    try {
+      delete activities[selection];
+      console.log("attempted deletion of", selection)
+      setSelection(0);
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
   return (
     <div>
@@ -89,15 +114,28 @@ function ActivityManager() {
             ref={inputRef}
           />
         </div>
-        <button type="submit" className="btn btn-primary">
-          Add
-        </button>
+        <div className="button-row">
+          <button type="submit" name="add" className="btn btn-primary">
+            Add
+          </button>
+          <button type="button" name="delete" className="btn" onClick={handleDeleteActivity}>
+            Delete
+          </button>
+        </div>
       </form>
+
       <ActivityList 
         activities={activities} 
         selection={selection}
         setSelection={setSelection}
       />
+
+      <ActivityViewer
+        activity={activities.selection}
+        width={500}
+        height={200}
+      />
+
     </div>
   );
 }
